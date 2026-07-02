@@ -49,43 +49,69 @@ if (field.required) {
 }
 
       // Email Validation
-      if (
-        field.type === "email" &&
-        value &&
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-      ) {
-        newErrors[field.id] = "Invalid Email Address";
-      }
+if (
+  field.type === "email" &&
+  value &&
+  !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+) {
+  newErrors[field.id] = "Invalid Email Address";
+}
 
-      // Min Length
-      if (
-        field.minLength &&
-        value &&
-        value.length < field.minLength
-      ) {
-        newErrors[field.id] =
-          `Minimum ${field.minLength} characters required`;
-      }
+// Password Validation
+if (field.type === "password" && value) {
 
-      // Max Length
-      if (
-        field.maxLength &&
-        value &&
-        value.length > field.maxLength
-      ) {
-        newErrors[field.id] =
-          `Maximum ${field.maxLength} characters allowed`;
-      }
+  // Minimum 8 characters
+  if (value.length < 8) {
+    newErrors[field.id] =
+      "Password must be at least 8 characters long";
+    return;
+  }
 
-    });
+  // At least one number
+  if (!/\d/.test(value)) {
+    newErrors[field.id] =
+      "Password must contain at least one number";
+    return;
+  }
 
-    setErrors(newErrors);
+  // At least one special character
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
+    newErrors[field.id] =
+      "Password must contain at least one special character";
+    return;
+  }
 
-    return Object.keys(newErrors).length === 0;
+}
 
-  };
+// Min Length
+if (
+  field.minLength &&
+  value &&
+  value.length < field.minLength
+) {
+  newErrors[field.id] =
+    `Minimum ${field.minLength} characters required`;
+}
 
-  if (!showPreview) return null;
+// Max Length
+if (
+  field.maxLength &&
+  value &&
+  value.length > field.maxLength
+) {
+  newErrors[field.id] =
+    `Maximum ${field.maxLength} characters allowed`;
+}
+
+});   // <-- forEach close
+
+setErrors(newErrors);
+
+return Object.keys(newErrors).length === 0;
+
+};   // <-- validateForm close
+
+if (!showPreview) return null;
 
   return (
 
@@ -329,6 +355,11 @@ if (field.required) {
           className="form-check-input"
           type="radio"
           name={`radio-${field.id}`}
+          value={option}
+          checked={formData[field.id] === option}
+          onChange={(e) =>
+            handleChange(field.id, e.target.value)
+          }
         />
 
         <label className="form-check-label">
@@ -344,6 +375,7 @@ if (field.required) {
     )}
   </>
 )}
+
 
                 </div>
 
