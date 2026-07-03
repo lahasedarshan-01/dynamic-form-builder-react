@@ -3,7 +3,10 @@ function Toolbar({
   darkMode,
   setDarkMode,
   saveTemplate,
-  exportJSON
+  exportJSON,
+  importJSON,
+  clearBuilder,
+  Toolbar
 }) {
   return (
 
@@ -35,6 +38,29 @@ function Toolbar({
 >
   <i className="bi bi-download me-2"></i>
   Export JSON
+</button>
+
+<label className="btn btn-info mb-0">
+
+  <i className="bi bi-upload me-2"></i>
+
+  Import JSON
+
+  <input
+    type="file"
+    accept=".json"
+    hidden
+    onChange={importJSON}
+  />
+
+</label>
+
+<button
+  className="btn btn-danger"
+  onClick={clearBuilder}
+>
+  <i className="bi bi-trash3-fill me-2"></i>
+  Clear Builder
 </button>
 
           <button

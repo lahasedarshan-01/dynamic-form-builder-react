@@ -1,29 +1,40 @@
 import { useState } from "react";
 
-function PreviewModal({ showPreview, setShowPreview, fields }) {
+function PreviewModal({ showPreview, setShowPreview, fields, showToast }) {
 
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
 
   const handleChange = (id, value) => {
-    setFormData({
-      ...formData,
-      [id]: value
-    });
 
-    setErrors({
-      ...errors,
-      [id]: ""
-    });
-  };
+  setFormData((prev) => ({
+    ...prev,
+    [id]: value
+  }));
+
+  setErrors((prev) => ({
+    ...prev,
+    [id]: ""
+  }));
+
+};
+const resetForm = () => {
+
+  setFormData({});
+  setErrors({});
+
+};
 
   const validateForm = () => {
-
+    
+    
     let newErrors = {};
 
     fields.forEach((field) => {
 
       const value = formData[field.id];
+      console.log(field.label, value);
+    
 
       // Required Validation
       // Required Validation
@@ -325,9 +336,26 @@ if (!showPreview) return null;
         key={index}
       >
         <input
-          className="form-check-input"
-          type="checkbox"
-        />
+  className="form-check-input"
+  type="checkbox"
+  value={option}
+  checked={(formData[field.id] || []).includes(option)}
+  onChange={(e) => {
+
+    let values = [...(formData[field.id] || [])];
+
+    if (e.target.checked) {
+      values.push(option);
+    } else {
+      values = values.filter(
+        (item) => item !== option
+      );
+    }
+
+    handleChange(field.id, values);
+
+  }}
+/>
 
         <label className="form-check-label">
           {option}
@@ -388,24 +416,34 @@ if (!showPreview) return null;
           <div className="modal-footer">
 
             <button
-              className="btn btn-secondary"
-              onClick={() => setShowPreview(false)}
-            >
-              Close
-            </button>
+  className="btn btn-secondary"
+  onClick={() => {
+
+    resetForm();
+
+    setShowPreview(false);
+
+  }}
+>
+  Close
+</button>
 
             <button
-              className="btn btn-primary"
-              onClick={() => {
+  className="btn btn-primary"
+  onClick={() => {
 
-                if (validateForm()) {
-                  alert("✅ Form Submitted Successfully!");
-                }
+    if (validateForm()) {
 
-              }}
-            >
-              Submit
-            </button>
+      showToast("Form Submitted Successfully!");
+
+      resetForm();
+
+    }
+
+  }}
+>
+  Submit
+</button>
 
           </div>
 

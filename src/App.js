@@ -6,6 +6,7 @@ import Builder from './components/Builder';
 import Properties from './components/Properties';
 import { useState, useEffect } from "react";
 import PreviewModal from "./components/PreviewModal";
+import Toast from "./components/Toast";
 
 function App() {
 
@@ -13,6 +14,20 @@ function App() {
   const [selectedField, setSelectedField] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [toast, setToast] = useState({
+  show: false,
+  message: "",
+  type: "success"
+});
+const showToast = (message, type = "success") => {
+
+  setToast({
+    show: true,
+    message,
+    type
+  });
+
+};
 
   // One function for all field types
   const addField = (type) => {
@@ -60,8 +75,7 @@ const saveTemplate = () => {
     JSON.stringify(fields)
   );
 
-  alert("✅ Template Saved Successfully!");
-
+  showToast("Template Saved Successfully!");
 };
 
 useEffect(() => {
@@ -94,6 +108,113 @@ const exportJSON = () => {
   URL.revokeObjectURL(url);
 
 };
+
+const importJSON = (event) => {
+
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+
+    try {
+
+      const importedFields = JSON.parse(e.target.result);
+
+      setFields(importedFields);
+
+      showToast("JSON Imported Successfully!");
+
+    } catch {
+
+      showToast("Invalid JSON", "danger");
+
+    }
+
+  };
+
+  reader.readAsText(file);
+
+};
+
+const clearBuilder = () => {
+
+  const confirmClear = window.confirm(
+    "Are you sure you want to clear the builder?"
+  );
+
+  if (!confirmClear) return;
+
+  setFields([]);
+  setSelectedField(null);
+
+  localStorage.removeItem("formTemplate");
+
+  showToast("Builder Cleared Successfully!");
+
+};
+
+const moveFieldUp = (id) => {
+
+  const index = fields.findIndex(
+    (field) => field.id === id
+  );
+
+  if (index === 0) return;
+
+  const newFields = [...fields];
+
+  [newFields[index], newFields[index - 1]] =
+    [newFields[index - 1], newFields[index]];
+
+  setFields(newFields);
+
+};
+
+const moveFieldDown = (id) => {
+
+  const index = fields.findIndex(
+    (field) => field.id === id
+  );
+
+  if (index === fields.length - 1) return;
+
+  const newFields = [...fields];
+
+  [newFields[index], newFields[index + 1]] =
+    [newFields[index + 1], newFields[index]];
+
+  setFields(newFields);
+
+};
+
+const duplicateField = (id) => {
+
+  const fieldToDuplicate = fields.find(
+    (field) => field.id === id
+  );
+
+  if (!fieldToDuplicate) return;
+
+  const duplicatedField = {
+    ...fieldToDuplicate,
+    id: Date.now(),
+    label: `${fieldToDuplicate.label} Copy`
+  };
+
+  const index = fields.findIndex(
+    (field) => field.id === id
+  );
+
+  const newFields = [...fields];
+
+  newFields.splice(index + 1, 0, duplicatedField);
+
+  setFields(newFields);
+
+};
   return (
   <div
     className={
@@ -110,6 +231,8 @@ const exportJSON = () => {
   setDarkMode={setDarkMode}
   saveTemplate={saveTemplate}
   exportJSON={exportJSON}
+  importJSON={importJSON}
+  clearBuilder={clearBuilder}
 />
 
     <div className="container mt-4">
@@ -118,11 +241,13 @@ const exportJSON = () => {
         <Sidebar addField={addField} />
 
         <Builder
-          fields={fields}
-          deleteField={deleteField}
-          setSelectedField={setSelectedField}
-        />
-
+  fields={fields}
+  deleteField={deleteField}
+  duplicateField={duplicateField}
+  setSelectedField={setSelectedField}
+  moveFieldUp={moveFieldUp}
+  moveFieldDown={moveFieldDown}
+/>
         <Properties
           selectedField={selectedField}
           updateField={updateField}
@@ -132,10 +257,22 @@ const exportJSON = () => {
     </div>
 
     <PreviewModal
-      showPreview={showPreview}
-      setShowPreview={setShowPreview}
-      fields={fields}
-    />
+  showPreview={showPreview}
+  setShowPreview={setShowPreview}
+  fields={fields}
+  showToast={showToast}
+/>
+    <Toast
+  show={toast.show}
+  message={toast.message}
+  type={toast.type}
+  onClose={() =>
+    setToast({
+      ...toast,
+      show: false
+    })
+  }
+/>
 
   </div>
 );

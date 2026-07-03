@@ -56,6 +56,60 @@ function Properties({
               </div>
 
               <div className="mb-3">
+                {/* Min Length & Max Length */}
+
+{(selectedField.type === "text" ||
+  selectedField.type === "email" ||
+  selectedField.type === "password" ||
+  selectedField.type === "textarea") && (
+
+  <div className="row">
+
+    <div className="col-6">
+
+      <label className="form-label">
+        Min Length
+      </label>
+
+      <input
+        type="number"
+        className="form-control"
+        value={selectedField.minLength}
+        onChange={(e) =>
+          updateField(
+            selectedField.id,
+            "minLength",
+            Number(e.target.value)
+          )
+        }
+      />
+
+    </div>
+
+    <div className="col-6">
+
+      <label className="form-label">
+        Max Length
+      </label>
+
+      <input
+        type="number"
+        className="form-control"
+        value={selectedField.maxLength}
+        onChange={(e) =>
+          updateField(
+            selectedField.id,
+            "maxLength",
+            Number(e.target.value)
+          )
+        }
+      />
+
+    </div>
+
+  </div>
+
+)}
   <label className="form-label">
     Placeholder
   </label>
